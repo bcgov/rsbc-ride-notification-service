@@ -3,7 +3,6 @@ name: CI Checks for notification_svc build
 on:
   push:
     branches-ignore:   
-      - 'release**'
       - 'main'
       - 'master'
 

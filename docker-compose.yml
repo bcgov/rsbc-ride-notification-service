@@ -16,9 +16,6 @@ services:
         dockerfile: Dockerfile-local
       env_file:
         - .env
-      # environment:
-      #   ALERTMANAGER_DIST_LIST: amlan.chakladar@gov.bc.ca,amlan.chakladar@quartech.com
-      #   LOG_LEVEL: DEBUG
       networks:
         - default
       ports:

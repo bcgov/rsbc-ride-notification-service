@@ -3,6 +3,7 @@ import fastapi
 from fastapi.responses import PlainTextResponse,JSONResponse
 import os
 from src.emailfunctions import EmailFunctions
+from src.alertmanagerfunctions import AlertManagerFuncs
 import logging
 
 
@@ -15,6 +16,8 @@ logging.basicConfig(
     level=numeric_level,
     format='%(asctime)s %(levelname)s %(module)s:%(lineno)d [RIDE_EMAIL]: %(message)s'
 )
+
+alertmanager_alert_receivers=os.getenv('ALERTMANAGER_DIST_LIST')
 
 @router.get('/ping')
 async def pingmethod():
@@ -44,6 +47,16 @@ async def sendbasicemail(payload: dict):
 @router.post('/emailpayloadtest',response_class=JSONResponse)
 async def emailpayloadtest(payload: dict):
     logging.debug(payload)
+    respstatus = {"status": "success"}
+    status_code = 200
+    return JSONResponse(status_code=status_code, content=respstatus)
+
+@router.post('/alertmanageralerts',response_class=JSONResponse)
+async def alertmanageralert(payload: dict):
+    logging.debug(payload)
+    alertmanagerobj=AlertManagerFuncs(payload,alertmanager_alert_receivers,logging)
+    alert_details=alertmanagerobj.parsePayload()
+    logging.debug(alert_details)
     respstatus = {"status": "success"}
     status_code = 200
     return JSONResponse(status_code=status_code, content=respstatus)

@@ -14,9 +14,11 @@ services:
       container_name: notifsvc
       build:
         dockerfile: Dockerfile-local
-      environment:
-        ALERTMANAGER_DIST_LIST: amlan.chakladar@gov.bc.ca,amlan.chakladar@quartech.com
-        LOG_LEVEL: DEBUG
+      env_file:
+        - .env
+      # environment:
+      #   ALERTMANAGER_DIST_LIST: amlan.chakladar@gov.bc.ca,amlan.chakladar@quartech.com
+      #   LOG_LEVEL: DEBUG
       networks:
         - default
       ports:

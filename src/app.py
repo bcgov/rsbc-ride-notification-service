@@ -18,6 +18,7 @@ logging.basicConfig(
 )
 
 alertmanager_alert_receivers=os.getenv('ALERTMANAGER_DIST_LIST')
+alertmanager_email_templateid=os.getenv('ALERTMANAGER_EMAIL_TEMPLATE_ID')
 
 @router.get('/ping')
 async def pingmethod():
@@ -31,7 +32,7 @@ async def sendbasicemail(payload: dict):
         payloadinput = payload.copy()
         templateid=payloadinput['templateid']
         receiver=payloadinput['receiver']
-        emailobj=EmailFunctions(os.getenv('GC_API_KEY'),os.getenv('GC_BASE_URL'))
+        emailobj=EmailFunctions(os.getenv('GC_API_KEY'),os.getenv('GC_BASE_URL'),logging)
         emailresp=emailobj.sendbasicemail(templateid,receiver)
         if emailresp['status_code']==201:
             respstatus = {"status": "success","resp_id":emailresp['resp_id']}
@@ -53,11 +54,23 @@ async def emailpayloadtest(payload: dict):
 
 @router.post('/alertmanageralerts',response_class=JSONResponse)
 async def alertmanageralert(payload: dict):
-    logging.debug(payload)
-    alertmanagerobj=AlertManagerFuncs(payload,alertmanager_alert_receivers,logging)
-    alert_details=alertmanagerobj.parsePayload()
-    logging.debug(alert_details)
-    respstatus = {"status": "success"}
-    status_code = 200
+    respstatus = {"status": "failure"}
+    status_code = 500
+    try:
+        payloadinput = payload.copy()
+        templateid = alertmanager_email_templateid
+        alertmanagerobj=AlertManagerFuncs(payload,alertmanager_alert_receivers,logging)
+        alert_details=alertmanagerobj.parsePayload()
+        logging.debug(alert_details)
+        emailobj = EmailFunctions(os.getenv('GC_API_KEY'), os.getenv('GC_BASE_URL'), logging)
+        emailresp = emailobj.sendalertmanageralert(templateid,alert_details['receiver'],alert_details['subject'],alert_details['message'])
+        if emailresp['status_code']==201:
+            respstatus = {"status": "success"}
+            status_code = 200
+        else:
+            raise Exception(emailresp['err_resp'])
+    except Exception as e:
+        logging.error(e)
+        respstatus = {"status": "failure","error":str(e)}
     return JSONResponse(status_code=status_code, content=respstatus)
 

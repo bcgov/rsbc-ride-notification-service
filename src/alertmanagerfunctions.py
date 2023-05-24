@@ -12,13 +12,9 @@ class AlertManagerFuncs:
 
     def parsePayload(self):
         receiver_list=self.receivers.split(',')
-        # self.logger.debug(receiver_list)
-        # self.logger.debug(self.payload['status'])
         receiver_emails=receiver_list
         alert_msg=self.payload['message']
         alert_subject=self.payload['title']
-        # self.logger.debug(alert_msg)
-        # self.logger.debug(alert_subject)
         return {"receiver":receiver_emails,"subject":alert_subject,"message":alert_msg}
 
 

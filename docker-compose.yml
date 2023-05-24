@@ -1,0 +1,25 @@
+version: '3.9'
+ 
+services:
+ 
+    grafana:
+      image: grafana/grafana:latest
+      container_name: grafana
+      # network_mode: host
+      networks:
+        - default
+      ports:
+          - "3000:3000"
+    notifsvc:
+      container_name: notifsvc
+      build:
+        dockerfile: Dockerfile-local
+      env_file:
+        - .env
+      networks:
+        - default
+      ports:
+        - "5002:5000"
+networks:
+  default:
+    driver: bridge
